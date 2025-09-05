@@ -25,6 +25,62 @@ writing
 <class '__main__.ClosedConnectionState'>
 >>>
 """
+# from abc import ABC, abstractmethod
+
+
+class Connection:
+    def __init__(self):
+        self._state: ConnectionState = ClosedConnectionState
+
+    def change_state(self, state):
+        self._state = state
+
+    def __getattr__(self, name):
+        if name in ("open", "read", "write", "close"):
+            return getattr(self._state, name)(self._state)
+        raise AttributeError(
+            "{!r} object has no attribute {!r}".format(type(self), name)
+        )
+
+
+class ConnectionState:
+    @staticmethod
+    def open(conn):
+        raise RuntimeError()
+
+    @staticmethod
+    def read(conn):
+        raise RuntimeError()
+
+    @staticmethod
+    def write(conn):
+        raise RuntimeError()
+
+    @staticmethod
+    def close(conn):
+        raise RuntimeError()
+
+
+class ClosedConnectionState(ConnectionState):
+    @staticmethod
+    def open(conn):
+        conn.change_state(OpenConnectionState)
+
+
+class OpenConnectionState:
+    @staticmethod
+    def read(conn):
+        print("reading")
+
+    @staticmethod
+    def write(conn):
+        print("writing")
+
+    @staticmethod
+    def close(conn):
+        conn.change_state(ClosedConnectionState)
+
+
 if __name__ == "__main__":
     import doctest
 
