@@ -64,10 +64,10 @@ class ConnectionState:
 class ClosedConnectionState(ConnectionState):
     @staticmethod
     def open(conn):
-        conn.change_state(OpenConnectionState)
+        conn._state.change_state(OpenConnectionState)
 
 
-class OpenConnectionState:
+class OpenConnectionState(ConnectionState):
     @staticmethod
     def read(conn):
         print("reading")
@@ -78,7 +78,7 @@ class OpenConnectionState:
 
     @staticmethod
     def close(conn):
-        conn.change_state(ClosedConnectionState)
+        conn._state.change_state(ClosedConnectionState)
 
 
 if __name__ == "__main__":
