@@ -30,7 +30,7 @@ class ConnectionStateError(Exception):
     pass
 
 
-class Connection:
+class Model:
     def __init__(self):
         self.state: ConnectionState = ConnectionState.CLOSED
 
@@ -38,21 +38,36 @@ class Connection:
         if self.state != ConnectionState.CLOSED:
             raise ConnectionStateError("already open")
         self.state = ConnectionState.OPEN
-        print("opened")
 
     def read(self):
         if self.state != ConnectionState.OPEN:
             raise ConnectionStateError("connection not opened")
-        print("reading")
 
     def write(self):
         if self.state != ConnectionState.OPEN:
             raise ConnectionStateError("connection not opened")
-        print("writing")
 
     def close(self):
         if self.state != ConnectionState.OPEN:
             raise ConnectionStateError("connection already closed")
+        self.state = ConnectionState.CLOSED
+
+
+class Connection(Model):
+    def open(self):
+        super().open()
+        print("opened")
+
+    def read(self):
+        super().read()
+        print("reading")
+
+    def write(self):
+        super().write()
+        print("writing")
+
+    def close(self):
+        super().close()
         print("connection closed")
 
 
