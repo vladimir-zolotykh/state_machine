@@ -53,21 +53,35 @@ class Model:
         self.state = ConnectionState.CLOSED
 
 
-class Connection(Model):
+class CallSuperMeta(type):
+    def __new__(cls, name, bases, dct):
+        # For each method in the new class...
+        for attr_name, attr_value in dct.items():
+            if callable(attr_value) and not attr_name.startswith("__"):
+                # Wrap it in a function that calls super first
+                def make_wrapper(method):
+                    def wrapper(self, *args, **kwargs):
+                        super_method = getattr(super(type(self), self), method.__name__)
+                        super_method(*args, **kwargs)
+                        return method(self, *args, **kwargs)
+
+                    return wrapper
+
+                dct[attr_name] = make_wrapper(attr_value)
+        return super().__new__(cls, name, bases, dct)
+
+
+class Connection(Model, metaclass=CallSuperMeta):
     def open(self):
-        super().open()
         print("opened")
 
     def read(self):
-        super().read()
         print("reading")
 
     def write(self):
-        super().write()
         print("writing")
 
     def close(self):
-        super().close()
         print("connection closed")
 
 
